@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
-@Schema({ _id: false }) // <- esto asegura que NO se crea otra colección
+@Schema({ _id: false })
 export class UserBook {
   @Prop({ type: Types.ObjectId, ref: 'Book', required: true })
   bookId: Types.ObjectId;

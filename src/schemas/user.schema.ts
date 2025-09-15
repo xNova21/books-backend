@@ -13,7 +13,6 @@ export class User extends Document {
   @Prop({ required: true, type: String })
   password: string;
 
-  // 👇 Aquí va el schema, no un Object genérico
   @Prop({ type: [UserBookSchema], default: [] })
   books: UserBook[];
 }
