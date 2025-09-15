@@ -2,24 +2,24 @@ import { Prop, Schema } from '@nestjs/mongoose';
 
 @Schema({ timestamps: true, versionKey: false, collection: 'books' })
 export class Book {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   title: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   author: string;
 
-  @Prop()
+  @Prop({ type: Number })
   publishedYear: number;
 
-  @Prop()
+  @Prop({ type: [String] })
   genre: string[];
 
-  @Prop()
+  @Prop({ type: String })
   summary: string;
 
-  @Prop()
+  @Prop({ type: Date, default: Date.now })
   createdAt: Date;
 
-  @Prop()
+  @Prop({ type: Date, default: Date.now })
   updatedAt: Date;
 }
