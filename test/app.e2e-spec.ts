@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
 
@@ -13,6 +13,12 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.connectMicroservice({
+      transport: 1, // Transport.REDIS
+      options: { host: 'localhost', port: 6379 },
+    });
+
+    await app.startAllMicroservices();
     await app.init();
   });
 
@@ -20,10 +26,15 @@ describe('AppController (e2e)', () => {
     await app.close();
   });
 
+  // crea el test para usar el endpoint get recommendations
   it('/ (GET)', () => {
     return request(app.getHttpServer())
-      .get('/')
+      .get('/book/recommendation/68d18ba17b4e763a3270c4fd')
       .expect(200)
-      .expect('Hello World!');
+      .expect((res) => {
+        expect(res.body).toHaveProperty('yourBooks');
+        expect(res.body).toHaveProperty('category');
+        expect(res.body).toHaveProperty('popular');
+      });
   });
 });
