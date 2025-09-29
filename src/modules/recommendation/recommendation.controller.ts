@@ -12,7 +12,6 @@ export class RecommendationController {
   async getRecommendations(
     userId: string,
   ): Promise<RecommendationsResponseDto> {
-    console.log('Controller: getRecommendations recibido', userId);
     return await this.recommendationService.getRecommendations(userId);
   }
 }

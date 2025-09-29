@@ -41,12 +41,11 @@ export class UserService {
     }
     const saltRounds = 10;
     const hashedPassword: string = await bcrypt.hash(password, saltRounds);
-    const newUser = new this.userModel({
+    const newUser = await this.userModel.create({
       username,
       email,
       password: hashedPassword,
     });
-    await newUser.save();
 
     const token: string = jwt.sign(
       { userId: newUser._id },
@@ -74,39 +73,50 @@ export class UserService {
         expiresIn: '1h',
       },
     );
+
     return token;
   }
 
-  async getUserProfile(token: string): Promise<string> {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+  async getUserProfile(userId: string): Promise<string> {
+    if (!userId) {
+      throw new BadRequestException('Invalid token');
+    }
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new BadRequestException('User not found');
     }
-    return `User profile for user ${user.username} with email ${user.email}`;
+    return `User email updated successfully`;
   }
 
-  async updateUserProfile(token: string, newEmail: string): Promise<string> {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+  async updateUserEmail(userId: string, newEmail: string): Promise<string> {
+    if (!userId) {
+      throw new BadRequestException('Invalid token');
+    }
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new BadRequestException('User not found');
     }
-    // Validate email format
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newEmail)) {
       throw new BadRequestException('Invalid email format');
     }
-    user.email = newEmail;
-    await user.save();
-    return `User with token ${token} updated with new email ${newEmail}`;
+
+    const existingUser = await this.userModel.findOne({ email: newEmail });
+    if (existingUser) {
+      throw new BadRequestException('Email already in use');
+    }
+    await this.userModel.updateOne({ _id: userId }, { email: newEmail });
+    return `User email updated successfully`;
   }
 
-  async deleteUser(token: string, password: string): Promise<string> {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
+  async deleteUser(userId: string, password: string): Promise<string> {
+    if (!userId) {
+      throw new BadRequestException('Invalid token');
+    }
+    if (!password) {
+      throw new BadRequestException('Password is required');
+    }
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new BadRequestException('User not found');
@@ -116,6 +126,6 @@ export class UserService {
       throw new BadRequestException('Incorrect password');
     }
     await this.userModel.deleteOne({ _id: userId });
-    return `User deleted`;
+    return `User deleted successfully`;
   }
 }

@@ -93,8 +93,6 @@ export class BookService {
   async getBookRecommendations(
     userId: string,
   ): Promise<RecommendationsResponseDto> {
-    console.log('Fetching book recommendations for user:', userId);
-
     try {
       const recommendations: RecommendationsResponseDto = await lastValueFrom(
         this.client.send('get_recommendations', userId),

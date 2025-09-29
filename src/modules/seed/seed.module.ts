@@ -26,6 +26,10 @@ export class SeedModule implements OnModuleInit {
     const count = await this.userModel.countDocuments();
     if (count > 0) {
       console.log('Seed: ya existen usuarios, no se insertan datos');
+      // buscar si existe el user de test y si existe lo borra para no romper los tests
+      await this.userModel.deleteMany({
+        email: { $in: ['testuser@example.com', 'newemail@example.com'] },
+      });
       return;
     }
 

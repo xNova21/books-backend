@@ -1,8 +1,14 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Request as ExpressRequest } from 'express';
+// Extiende el tipo Request para incluir userId
+interface AuthenticatedRequest extends ExpressRequest {
+  userId?: string;
+}
 import { BookService } from '@/modules/book/book.service';
 import { CreateBookDto } from './dto/createbook.dto';
 import { Book } from '@/schemas/book.schema';
 import { RecommendationsResponseDto } from '../recommendation/dto/recomendations.dto';
+import { AuthGuard } from '@/midleware/auth.guard';
 
 @Controller('book')
 export class BookController {
@@ -15,10 +21,11 @@ export class BookController {
   }
 
   // Endpoint to get a book by ID
-  @Get('recommendation/:id')
+  @UseGuards(AuthGuard)
+  @Get('recommendation')
   async getBookRecommendations(
-    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
   ): Promise<RecommendationsResponseDto> {
-    return this.bookService.getBookRecommendations(id);
+    return this.bookService.getBookRecommendations(req.userId);
   }
 }

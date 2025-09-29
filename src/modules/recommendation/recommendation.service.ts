@@ -66,7 +66,6 @@ export class RecommendationService {
       .slice(0, 3)
       .map(([genre]) => genre);
 
-    console.log('Géneros más leídos:', topGenres);
 
     const popularBooks = await this.bookModel
       .find()
@@ -93,7 +92,6 @@ export class RecommendationService {
     );
 
     const allGenres = await this.categoryModel.find().lean();
-    console.log('All genres from DB:', allGenres);
     await Promise.all(
       allGenres.map(async (cat) => {
         const categoryBooks = await this.bookModel
